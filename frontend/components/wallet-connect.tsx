@@ -10,36 +10,117 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Copy, ExternalLink, Wallet } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "@/components/ui/use-toast"
 import { motion } from "framer-motion"
+import { connectWallet, disconnectWallet } from "@/blockchain/sui-client"
+import { useBlockchain } from "@/blockchain/provider"
 
 export function WalletConnect() {
-  const [connected, setConnected] = useState(false)
-  const walletAddress = "0x7a16ff...3a91"
+  const { isConnected, walletAddress } = useBlockchain()
+  const [shortAddress, setShortAddress] = useState<string>("0x0000...0000")
+  const [isConnecting, setIsConnecting] = useState(false)
 
-  const handleConnect = () => {
-    // Simulate wallet connection
-    setConnected(true)
-    toast({
-      title: "Wallet Connected",
-      description: "Successfully connected to Sui wallet",
-    })
-  }
+  useEffect(() => {
+    if (walletAddress) {
+      setShortAddress(formatAddress(walletAddress))
+    }
+  }, [walletAddress])
+
+  const formatAddress = (address: string): string => {
+    if (!address) return "0x0000...0000";
+    if (address.length < 10) return address;
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  const handleConnect = async () => {
+    try {
+      // First check if any wallet extension exists
+      if (typeof window !== 'undefined' && 
+          !(window as any).wallet && 
+          !(window as any).suiWallet && 
+          !(window as any).slush && 
+          !(window as any).sui &&
+          !((window as any).ethereum?.isEthos)) {
+        toast({
+          title: "Wallet Extension Missing",
+          description: "Please install a compatible Sui wallet extension (Sui Wallet, Slush, Ethos) and refresh the page",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setIsConnecting(true);
+      const address = await connectWallet();
+      setIsConnecting(false);
+      
+      if (!address) {
+        toast({
+          title: "Connection Failed",
+          description: "Could not connect to wallet. Please approve the connection request in your wallet extension.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Wallet Connected",
+          description: "Successfully connected to wallet",
+        });
+      }
+    } catch (error) {
+      setIsConnecting(false);
+      console.error("Error connecting wallet:", error);
+      toast({
+        title: "Connection Error",
+        description: "An error occurred while connecting to your wallet",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleCopy = () => {
-    // Simulate copying address
-    toast({
-      title: "Address Copied",
-      description: "Wallet address copied to clipboard",
-    })
-  }
+    if (walletAddress) {
+      navigator.clipboard.writeText(walletAddress);
+      toast({
+        title: "Address Copied",
+        description: "Wallet address copied to clipboard",
+      });
+    }
+  };
 
-  if (!connected) {
+  const handleExplorer = () => {
+    if (walletAddress) {
+      // Open Sui Explorer with the address
+      window.open(`https://suiexplorer.com/address/${walletAddress}?network=testnet`, '_blank');
+    }
+  };
+
+  const handleDisconnect = async () => {
+    try {
+      await disconnectWallet();
+      toast({
+        title: "Wallet Disconnected",
+        description: "Successfully disconnected wallet",
+      });
+    } catch (error) {
+      console.error("Error disconnecting wallet:", error);
+      toast({
+        title: "Disconnect Error",
+        description: "An error occurred while disconnecting your wallet",
+        variant: "destructive"
+      });
+    }
+  };
+
+  if (!isConnected) {
     return (
-      <GlowingButton onClick={handleConnect} className="gap-2" glowColor="rgba(59, 130, 246, 0.7)">
+      <GlowingButton 
+        onClick={handleConnect} 
+        className="gap-2" 
+        glowColor="rgba(59, 130, 246, 0.7)"
+        disabled={isConnecting}
+      >
         <Wallet className="h-4 w-4" />
-        Connect Wallet
+        {isConnecting ? "Connecting..." : "Connect Wallet"}
       </GlowingButton>
     )
   }
@@ -64,7 +145,7 @@ export function WalletConnect() {
                 repeatType: "reverse",
               }}
             />
-            {walletAddress}
+            {shortAddress}
           </GlowingButton>
         </motion.div>
       </DropdownMenuTrigger>
@@ -75,12 +156,12 @@ export function WalletConnect() {
           <Copy className="mr-2 h-4 w-4" />
           <span>Copy Address</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="hover:bg-blue-500/10 cursor-pointer">
+        <DropdownMenuItem onClick={handleExplorer} className="hover:bg-blue-500/10 cursor-pointer">
           <ExternalLink className="mr-2 h-4 w-4" />
           <span>View on Explorer</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => setConnected(false)} className="hover:bg-blue-500/10 cursor-pointer">
+        <DropdownMenuItem onClick={handleDisconnect} className="hover:bg-blue-500/10 cursor-pointer">
           Disconnect
         </DropdownMenuItem>
       </DropdownMenuContent>
