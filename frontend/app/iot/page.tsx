@@ -8,8 +8,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { motion } from "framer-motion"
 import { AlertTriangle, ArrowDown, ArrowUp, Bell, Download, Thermometer } from "lucide-react"
 import { useEffect, useState } from "react"
+import { AccessControl } from "@/components/access-control"
 
 export default function IoTPage() {
+  return (
+    <AccessControl>
+      <IoTContent />
+    </AccessControl>
+  )
+}
+
+function IoTContent() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {

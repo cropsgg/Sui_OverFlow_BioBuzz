@@ -12,8 +12,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { motion } from "framer-motion"
 import { Activity, FileText, Lock, Users, Zap } from "lucide-react"
 import { useEffect, useState } from "react"
+import { AccessControl } from "@/components/access-control"
 
 export default function DashboardPage() {
+  return (
+    <AccessControl>
+      <DashboardContent />
+    </AccessControl>
+  )
+}
+
+function DashboardContent() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
