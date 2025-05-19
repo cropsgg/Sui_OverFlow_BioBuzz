@@ -1,7 +1,7 @@
 # LabShareDAO Smart Contract
 
 ## Overview
-LabShareDAO is a decentralized autonomous organization (DAO) built on the Sui blockchain, designed specifically for research laboratories to securely share data, manage IoT devices, and collaborate on research initiatives. The system provides infrastructure for transparent governance, verifiable data records, and automated alerts based on sensor data.
+LabShareDAO is a decentralized autonomous organization (DAO) built on the Sui blockchain, designed specifically for research laboratories to securely share data, manage IoT devices, and collaborate on research initiatives. The system provides infrastructure for transparent governance, verifiable data records, and automated alert based on sensor data.
 
 ## Technical Architecture
 
