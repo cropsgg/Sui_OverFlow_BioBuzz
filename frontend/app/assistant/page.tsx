@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Bot,
@@ -85,11 +85,31 @@ export default function AssistantPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
-  const handleSend = () => {
+  const sendMessageToAPI = useCallback(async (message: string, files?: File[]) => {
     try {
-      if (!input.trim() && attachedFiles.length === 0) return
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [...messages, { role: 'user', content: message }],
+          // files: files, // (if you want to support files later)
+        }),
+      });
 
-      const messageId = Date.now().toString()
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      return data.content;
+    } catch (error) {
+      console.error('Error sending message:', error);
+      throw error;
+    }
+  }, [messages]);
+
+  const handleSend = async () => {
+    try {
+      if (!input.trim() && attachedFiles.length === 0) return;
+
+      const messageId = Date.now().toString();
 
       // Add user message
       const fileData = attachedFiles.map((file) => ({
@@ -97,7 +117,7 @@ export default function AssistantPage() {
         type: file.type,
         size: file.size,
         url: URL.createObjectURL(file),
-      }))
+      }));
 
       setMessages((prev) => [
         ...prev,
@@ -108,30 +128,29 @@ export default function AssistantPage() {
           timestamp: new Date(),
           files: fileData.length > 0 ? fileData : undefined,
         },
-      ])
-      setInput("")
-      setAttachedFiles([])
-      setShowFileUpload(false)
+      ]);
 
-      // Simulate AI thinking
-      setIsTyping(true)
+      setInput("");
+      setAttachedFiles([]);
+      setShowFileUpload(false);
+      setIsTyping(true);
 
-      // Simulate AI response after a delay
-      setTimeout(() => {
-        setIsTyping(false)
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `response-${messageId}`,
-            role: "assistant",
-            content: getSimulatedResponse(input, fileData),
-            timestamp: new Date(),
-          },
-        ])
-      }, 3000)
+      // Get AI response
+      const response = await sendMessageToAPI(input, attachedFiles);
+      
+      setIsTyping(false);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `response-${messageId}`,
+          role: "assistant",
+          content: response,
+          timestamp: new Date(),
+        },
+      ]);
     } catch (error) {
-      console.error("Error in handleSend:", error)
-      setIsTyping(false)
+      console.error("Error in handleSend:", error);
+      setIsTyping(false);
       setMessages((prev) => [
         ...prev,
         {
@@ -140,9 +159,9 @@ export default function AssistantPage() {
           content: "I apologize, but I encountered an error processing your request. Please try again.",
           timestamp: new Date(),
         },
-      ])
+      ]);
     }
-  }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -648,86 +667,4 @@ function UploadExample({ icon, text }: { icon: React.ReactNode; text: string }) 
       <p>{text}</p>
     </div>
   )
-}
-
-// Simulated AI responses
-function getSimulatedResponse(input: string, files?: { name: string; type: string; size: number }[]): string {
-  const inputLower = input.toLowerCase().trim()
-
-  // Handle empty input
-  if (!inputLower && (!files || files.length === 0)) {
-    return "I'm here to help with your research. Feel free to ask me anything or upload files for analysis."
-  }
-
-  // If files are attached, acknowledge them in the response
-  if (files && files.length > 0) {
-    const fileTypes = files.map((file) => {
-      if (file.type.startsWith("image/")) return "image"
-      if (file.type.startsWith("video/")) return "video"
-      if (file.type.startsWith("audio/")) return "audio"
-      if (file.type.includes("pdf") || file.type.includes("document")) return "document"
-      return "file"
-    })
-
-    const fileTypeCount: Record<string, number> = {}
-    fileTypes.forEach((type) => {
-      fileTypeCount[type] = (fileTypeCount[type] || 0) + 1
-    })
-
-    const fileDescription = Object.entries(fileTypeCount)
-      .map(([type, count]) => `${count} ${type}${count > 1 ? "s" : ""}`)
-      .join(", ")
-
-    const fileResponse = `I've received your ${fileDescription}. `
-
-    if (fileTypes.includes("image")) {
-      return `${fileResponse}I've analyzed the image${fileTypes.filter((t) => t === "image").length > 1 ? "s" : ""} you've shared. ${getResponseForInput(inputLower)}`
-    }
-
-    if (fileTypes.includes("document")) {
-      return `${fileResponse}I've reviewed the document${fileTypes.filter((t) => t === "document").length > 1 ? "s" : ""} you've shared. ${getResponseForInput(inputLower)}`
-    }
-
-    if (fileTypes.includes("video")) {
-      return `${fileResponse}I've processed the video${fileTypes.filter((t) => t === "video").length > 1 ? "s" : ""} you've shared. ${getResponseForInput(inputLower)}`
-    }
-
-    if (fileTypes.includes("audio")) {
-      return `${fileResponse}I've listened to the audio${fileTypes.filter((t) => t === "audio").length > 1 ? "s" : ""} you've shared. ${getResponseForInput(inputLower)}`
-    }
-
-    return `${fileResponse}${getResponseForInput(inputLower)}`
-  }
-
-  // Handle simple greetings
-  if (inputLower === "hey" || inputLower === "hi" || inputLower === "hello") {
-    return "Hello! How can I assist with your research today? Feel free to ask questions or upload files for analysis."
-  }
-
-  return getResponseForInput(inputLower)
-}
-
-function getResponseForInput(inputLower: string): string {
-  if (inputLower.includes("crispr")) {
-    return "Based on your latest CRISPR-Cas9 results, I can see significant improvements in targeting efficiency compared to your previous experiments. The off-target effects have been reduced by approximately 23%, which aligns with recent literature on enhanced guide RNA design. Would you like me to suggest potential optimizations for your next round of experiments?"
-  }
-
-  if (inputLower.includes("protein") || inputLower.includes("folding")) {
-    return "I've analyzed the protein folding patterns in your dataset. There appears to be an interesting anomaly in the beta-sheet formations under high salt conditions. This could indicate a novel interaction with the solvent that hasn't been documented in similar proteins. I recommend running additional simulations with varying ion concentrations to verify this observation."
-  }
-
-  if (inputLower.includes("quantum")) {
-    return "For your quantum computing research, I suggest exploring the application of variational quantum eigensolvers to your current problem set. Recent papers from MIT and Google AI have shown promising results in this direction. Additionally, considering the limitations of current NISQ devices, you might want to focus on hybrid quantum-classical algorithms that are more resilient to noise."
-  }
-
-  if (inputLower.includes("paper") || inputLower.includes("similar")) {
-    return "I've found several papers similar to your current work on blockchain-secured research data sharing. The most relevant ones are:\n\n1. 'Decentralized Data Integrity for Scientific Collaboration' by Zhang et al. (2024)\n2. 'Blockchain-Based Framework for Secure Research Data Exchange' by Patel et al. (2023)\n3. 'End-to-End Encrypted Scientific Collaboration Platforms' by Johnson et al. (2025)\n\nWould you like me to summarize any of these papers?"
-  }
-
-  if (inputLower.includes("troubleshoot") || inputLower.includes("setup")) {
-    return "To troubleshoot your experimental setup, let's start with the most common issues. Based on the sensor data, I notice temperature fluctuations in Freezer #3 that might be affecting your sample stability. Additionally, the humidity drop in the lab yesterday could impact sensitive reactions. I recommend checking the freezer's door seal and calibrating the environmental controls. Would you like me to analyze the equipment logs for other potential issues?"
-  }
-
-  // Default response
-  return "That's an interesting question about your research. To provide a more specific answer, I'd need access to your relevant datasets or experimental parameters. Could you share more details or clarify which aspect of your work you'd like me to focus on?"
 }
