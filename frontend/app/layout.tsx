@@ -13,6 +13,7 @@ import { ParticlesBackground } from "@/components/particles-background"
 import { AnimatedGradientBackground } from "@/components/animated-gradient-background"
 import { ClientLoadingScreen } from "@/components/client-loading-screen"
 import { BlockchainProvider } from "@/blockchain/provider"
+import { AuthProvider } from "@/lib/auth-context"
 import Script from "next/script"
 
 // Configure Inter font with proper display settings
@@ -38,7 +39,7 @@ export default function RootLayout({
       <head>
         {/* Remove the custom font preload that was causing errors */}
       </head>
-      <body className={inter.className}>
+      <body suppressHydrationWarning className={inter.className}>
         {/* Script to detect wallet provider and console log it */}
         <Script id="detect-wallet" strategy="afterInteractive">
           {`
@@ -66,25 +67,27 @@ export default function RootLayout({
         
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <ClientLoadingScreen />
-          <BlockchainProvider>
-            <SidebarProvider>
-              <AnimatedGradientBackground />
-              <ParticlesBackground />
-              <div className="flex min-h-screen flex-col">
-                <header className="sticky top-0 z-40 border-b border-border/40 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/30">
-                  <div className="container flex h-16 items-center justify-between py-4">
-                    <MainNav />
-                    <div className="flex items-center gap-4">
-                      <WalletConnect />
-                      <UserNav />
+          <AuthProvider>
+            <BlockchainProvider>
+              <SidebarProvider>
+                <AnimatedGradientBackground />
+                <ParticlesBackground />
+                <div className="flex min-h-screen flex-col">
+                  <header className="sticky top-0 z-40 border-b border-border/40 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/30">
+                    <div className="container flex h-16 items-center justify-between py-4">
+                      <MainNav />
+                      <div className="flex items-center gap-4">
+                        <WalletConnect />
+                        <UserNav />
+                      </div>
                     </div>
-                  </div>
-                </header>
-                <MobileSidebar />
-                <main className="flex-1">{children}</main>
-              </div>
-            </SidebarProvider>
-          </BlockchainProvider>
+                  </header>
+                  <MobileSidebar />
+                  <main className="flex-1">{children}</main>
+                </div>
+              </SidebarProvider>
+            </BlockchainProvider>
+          </AuthProvider>
           <Toaster />
         </ThemeProvider>
       </body>
