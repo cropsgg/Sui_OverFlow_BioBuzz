@@ -14,6 +14,7 @@ import { AnimatedGradientBackground } from "@/components/animated-gradient-backg
 import { ClientLoadingScreen } from "@/components/client-loading-screen"
 import { BlockchainProvider } from "@/blockchain/provider"
 import { AuthProvider } from "@/lib/auth-context"
+
 import Script from "next/script"
 
 // Configure Inter font with proper display settings
