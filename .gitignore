@@ -10,8 +10,14 @@ frontend/.env
 # Dependencies
 node_modules/
 */node_modules/
+@node_modules/
+@node_modules
+node_modules
 /.pnp
 .pnp.js
+
+# Git
+@.gitignore
 
 # Build outputs
 /dist
