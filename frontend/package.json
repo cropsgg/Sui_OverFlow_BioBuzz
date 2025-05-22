@@ -11,6 +11,7 @@
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
     "@hookform/resolvers": "^3.9.1",
+
     "@huggingface/inference": "^2.6.4",
     "@mysten/dapp-kit": "^0.16.3",
     "@mysten/sui.js": "^0.54.1",
