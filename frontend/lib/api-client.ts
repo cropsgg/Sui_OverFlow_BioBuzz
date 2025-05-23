@@ -27,6 +27,12 @@ interface ChangePasswordData {
   confirmPassword: string;
 }
 
+interface UpdateProfileData {
+  firstName: string;
+  lastName: string;
+  username: string;
+}
+
 interface ApiResponse<T = any> {
   success: boolean;
   message?: string;
@@ -232,6 +238,24 @@ export const authApi = {
         },
         credentials: 'include',
         body: JSON.stringify(data),
+      });
+      
+      return await response.json();
+    } catch (error) {
+      return handleApiError(error);
+    }
+  },
+
+  // Update user profile
+  updateProfile: async (profileData: UpdateProfileData): Promise<ApiResponse> => {
+    try {
+      const response = await fetch(`${API_URL}/auth/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Important for cookies
+        body: JSON.stringify(profileData),
       });
       
       return await response.json();
