@@ -708,5 +708,3 @@ module labshare_dao::labshare_dao {
         coin::value(&dao.treasury)
     }
 }
-
-
