@@ -77,6 +77,15 @@ export function MainNav() {
         >
           AI Assistant
         </Link>
+        <Link
+          href="/chat"
+          className={cn(
+            "transition-colors hover:text-primary",
+            pathname === "/chat" ? "text-primary" : "text-muted-foreground",
+          )}
+        >
+          Chatroom
+        </Link>
       </nav>
     </div>
   )
