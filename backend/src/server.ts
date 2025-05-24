@@ -10,6 +10,7 @@ import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import daoRoutes from './routes/dao.routes';
 import escrowRoutes from './routes/escrow.routes';
+import biomedicalAIRoutes from './routes/biomedical-ai.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 // Load environment variables
@@ -156,6 +157,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/dao', daoRoutes);
 app.use('/api/escrow', escrowRoutes);
+app.use('/api/biomedical-ai', biomedicalAIRoutes);
 
 // ====== Health Check & API Info ======
 app.get('/health', (req, res) => {
@@ -179,6 +181,7 @@ app.get('/api', (req, res) => {
       users: '/api/users',
       dao: '/api/dao',
       escrow: '/api/escrow',
+      biomedicalAI: '/api/biomedical-ai',
       health: '/health'
     },
     dao: {

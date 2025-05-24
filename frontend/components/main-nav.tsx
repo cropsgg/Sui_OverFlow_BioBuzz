@@ -31,7 +31,9 @@ import {
   Vote,
   Zap,
   FlaskConical,
-  Menu
+  Menu,
+  Brain,
+  Microscope
 } from "lucide-react"
 
 export function MainNav() {
@@ -125,6 +127,20 @@ export function MainNav() {
           href: "/assistant",
           icon: Bot,
           description: "Advanced AI tools and analysis"
+        },
+        {
+          title: "Biomedical Analysis",
+          href: "/biomedical-analysis",
+          icon: Brain,
+          description: "AI-powered biomedical text analysis",
+          badge: "New"
+        },
+        {
+          title: "Research Insights",
+          href: "/research-insights",
+          icon: Microscope,
+          description: "DAO data analysis with biomedical AI",
+          badge: "New"
         }
       ]
     },

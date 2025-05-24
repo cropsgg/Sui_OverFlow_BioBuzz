@@ -30,6 +30,9 @@ const config = {
   
   // Frontend URL for links in emails
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000',
+  
+  // Biomedical AI Model configuration
+  BIOMEDICAL_MODEL_URL: process.env.BIOMEDICAL_MODEL_URL || 'http://localhost:8000',
 };
 
 export default config; 

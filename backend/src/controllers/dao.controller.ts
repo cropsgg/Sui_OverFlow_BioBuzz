@@ -3,6 +3,7 @@ const expressValidator = require('express-validator');
 const { validationResult } = expressValidator;
 import { SuiService } from '../services/sui.service';
 import { EventListenerService } from '../services/eventListener.service';
+import { biomedicalAIService } from '../services/biomedical-ai.service';
 import logger from '../services/logger';
 import { AuthenticatedRequest } from '../interfaces/auth.interface';
 import {
