@@ -450,24 +450,24 @@ export const ProposalsManagement: React.FC<ProposalsManagementProps> = ({ userAd
           />
         </div>
         <div className="flex gap-2">
-          <Select value={filters.type?.toString() || ''} onValueChange={(value) => setFilters(prev => ({ ...prev, type: value ? parseInt(value) : undefined }))}>
+          <Select value={filters.type?.toString() || 'all'} onValueChange={(value) => setFilters(prev => ({ ...prev, type: value === 'all' ? undefined : parseInt(value) }))}>
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Types</SelectItem>
+              <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="0">General</SelectItem>
               <SelectItem value="1">Alert</SelectItem>
               <SelectItem value="2">Configuration</SelectItem>
             </SelectContent>
           </Select>
           
-          <Select value={filters.status || ''} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value || undefined }))}>
+          <Select value={filters.status || 'all'} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value === 'all' ? undefined : value }))}>
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Status</SelectItem>
+              <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="executed_approved">Approved</SelectItem>
               <SelectItem value="executed_rejected">Rejected</SelectItem>

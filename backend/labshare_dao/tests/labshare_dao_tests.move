@@ -23,8 +23,7 @@ module labshare_dao::labshare_dao_tests {
     use sui::coin;
     use sui::sui::SUI;
     use sui::object::{Self, ID};
-    use sui::test_utils;
-    use sui::tx_context;
+
     use sui::clock::{Self, Clock};
     use std::string;
     use labshare_dao::labshare_dao::{Self, DAO};
@@ -33,7 +32,7 @@ module labshare_dao::labshare_dao_tests {
     const ADMIN: address = @0xA;
     const MEMBER1: address = @0xB;
     const MEMBER2: address = @0xC;
-    const NON_MEMBER: address = @0xD;
+
 
     // Helper function to create a test DAO
     fun setup_dao(scenario: &mut Scenario): ID {
@@ -66,9 +65,8 @@ module labshare_dao::labshare_dao_tests {
     fun setup_clock(scenario: &mut Scenario) {
         test_scenario::next_tx(scenario, ADMIN);
         {
-            let ctx = test_scenario::ctx(scenario);
-            let clock = clock::create_for_testing(ctx);
-            test_scenario::return_shared(clock);
+            let clock = clock::create_for_testing(test_scenario::ctx(scenario));
+            clock::share_for_testing(clock);
         };
     }
 
