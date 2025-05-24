@@ -39,7 +39,7 @@ jobs:
           cache-dependency-path: ./backend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install  # Replaces 'npm ci' with 'npm install'
 
       - name: TypeScript Build
         run: npm run build
@@ -72,7 +72,7 @@ jobs:
           node-version: 22.x
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install  # Replaces 'npm ci' with 'npm install'
 
       - name: Build for Production
         run: npm run build
@@ -83,7 +83,6 @@ jobs:
       - name: Run Server with PM2
         run: |
           pm2 stop all || true  # Stops any currently running PM2 processes
-          pm2 start dist/index.js --name my-backend-app  # Change 'index.js' to your entry point file if needed
+          pm2 start dist/server.js --name my-backend-app  # Start using 'dist/server.js' (compiled JavaScript from 'server.ts')
           pm2 save  # Saves the PM2 process list so it can restart on server reboot
           pm2 logs  # Shows PM2 logs to verify the server is running correctly
-
