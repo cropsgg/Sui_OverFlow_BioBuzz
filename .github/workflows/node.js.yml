@@ -1,0 +1,89 @@
+name: Backend CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  NODE_ENV: production
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env file from PROD_ENV_FILE secret
+        working-directory: ./backend
+        run: echo "${{ secrets.PROD_ENV_FILE }}" > .env
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: ./backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript Build
+        run: npm run build
+
+      - name: Test (Optional)
+        run: |
+          echo "No tests configured"
+          # Or replace with your actual test commands, e.g., npm test
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env file from PROD_ENV_FILE secret
+        working-directory: ./backend
+        run: echo "${{ secrets.PROD_ENV_FILE }}" > .env
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for Production
+        run: npm run build
+
+      - name: Install PM2
+        run: npm install -g pm2
+
+      - name: Run Server with PM2
+        run: |
+          pm2 stop all || true  # Stops any currently running PM2 processes
+          pm2 start dist/index.js --name my-backend-app  # Change 'index.js' to your entry point file if needed
+          pm2 save  # Saves the PM2 process list so it can restart on server reboot
+          pm2 logs  # Shows PM2 logs to verify the server is running correctly
+
