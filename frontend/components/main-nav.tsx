@@ -28,7 +28,8 @@ import {
   TrendingUp,
   Activity,
   Vote,
-  Zap
+  Zap,
+  FlaskConical
 } from "lucide-react"
 
 export function MainNav() {
@@ -83,6 +84,13 @@ export function MainNav() {
           href: "/iot", 
           icon: Database,
           description: "Submit and manage IoT sensor data"
+        },
+        {
+          title: "Shelf Life Predictor",
+          href: "/shelf-life",
+          icon: FlaskConical,
+          description: "Predict biological sample shelf life",
+          badge: "New"
         },
         {
           title: "Data Records",
