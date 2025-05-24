@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import * as expressValidator from 'express-validator';
-import { AppError } from '../middleware/error.middleware';
-
+const expressValidator = require('express-validator');
 const { validationResult } = expressValidator;
+import { AppError } from '../middleware/error.middleware';
 
 // Middleware to check validation results
 export const validate = (

@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
-import { validationResult } from 'express-validator';
+const expressValidator = require('express-validator');
+const { validationResult } = expressValidator;
 import { SuiService } from '../services/sui.service';
 import { EventListenerService } from '../services/eventListener.service';
-import { logger } from '../services/logger';
+import logger from '../services/logger';
+import { AuthenticatedRequest } from '../interfaces/auth.interface';
 import {
   DaoUserMapping,
   DaoInfo,
@@ -300,7 +302,7 @@ export class DaoController {
   // MEMBER MANAGEMENT METHODS
   // ================================
 
-  public async linkSuiAddress(req: Request, res: Response): Promise<void> {
+  public async linkSuiAddress(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -375,7 +377,7 @@ export class DaoController {
     }
   }
 
-  public async addMember(req: Request, res: Response): Promise<void> {
+  public async addMember(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -533,7 +535,7 @@ export class DaoController {
     }
   }
 
-  public async getUserDaoStatus(req: Request, res: Response): Promise<void> {
+  public async getUserDaoStatus(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const userId = req.user?.id;
 
@@ -570,7 +572,7 @@ export class DaoController {
   // DATA SUBMISSION METHODS
   // ================================
 
-  public async submitData(req: Request, res: Response): Promise<void> {
+  public async submitData(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -793,7 +795,7 @@ export class DaoController {
   // PROPOSAL METHODS
   // ================================
 
-  public async createProposal(req: Request, res: Response): Promise<void> {
+  public async createProposal(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -837,7 +839,7 @@ export class DaoController {
     }
   }
 
-  public async getProposals(req: Request, res: Response): Promise<void> {
+  public async getProposals(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const filters: ProposalFilters = {
         page: parseInt(req.query.page as string) || 1,
@@ -975,7 +977,7 @@ export class DaoController {
     }
   }
 
-  public async getProposalById(req: Request, res: Response): Promise<void> {
+  public async getProposalById(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { proposalId } = req.params;
       const userId = req.user?.id;
@@ -1041,7 +1043,7 @@ export class DaoController {
     }
   }
 
-  public async vote(req: Request, res: Response): Promise<void> {
+  public async vote(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -1106,7 +1108,7 @@ export class DaoController {
     }
   }
 
-  public async executeProposal(req: Request, res: Response): Promise<void> {
+  public async executeProposal(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { proposalId } = req.params;
       const userId = req.user?.id;
@@ -1156,7 +1158,7 @@ export class DaoController {
   // ADMIN METHODS
   // ================================
 
-  public async updateThreshold(req: Request, res: Response): Promise<void> {
+  public async updateThreshold(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -1264,7 +1266,7 @@ export class DaoController {
   // TREASURY METHODS
   // ================================
 
-  public async addFunds(req: Request, res: Response): Promise<void> {
+  public async addFunds(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -1338,7 +1340,7 @@ export class DaoController {
     }
   }
 
-  public async startEventListener(req: Request, res: Response): Promise<void> {
+  public async startEventListener(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const adminUserId = req.user?.id;
       const isAdmin = await this.isUserDaoAdmin(adminUserId);
@@ -1356,7 +1358,7 @@ export class DaoController {
     }
   }
 
-  public async stopEventListener(req: Request, res: Response): Promise<void> {
+  public async stopEventListener(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const adminUserId = req.user?.id;
       const isAdmin = await this.isUserDaoAdmin(adminUserId);
@@ -1374,7 +1376,7 @@ export class DaoController {
     }
   }
 
-  public async syncEvents(req: Request, res: Response): Promise<void> {
+  public async syncEvents(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const adminUserId = req.user?.id;
       const isAdmin = await this.isUserDaoAdmin(adminUserId);

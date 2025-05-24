@@ -1,10 +1,9 @@
 import { Router } from 'express';
-import * as expressValidator from 'express-validator';
+const expressValidator = require('express-validator');
+const { body, param, query } = expressValidator;
 import { DaoController } from '../controllers/dao.controller';
 // Note: Auth middleware path needs to be verified/created
 // import { authenticateToken } from '../middleware/auth';
-
-const { body, param, query } = expressValidator;
 
 const router = Router();
 const daoController = new DaoController();

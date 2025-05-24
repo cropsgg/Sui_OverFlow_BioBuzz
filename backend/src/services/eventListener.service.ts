@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 import { SuiService } from './sui.service';
-import { logger } from './logger';
+import logger from './logger';
 import {
   DaoUserMapping,
   DaoInfo,
@@ -610,7 +610,7 @@ export class EventListenerService {
 
       // Continue syncing if there are more events
       if (events.hasNextPage && events.nextCursor) {
-        await this.syncFromCheckpoint(events.nextCursor);
+        await this.syncFromCheckpoint(events.nextCursor as unknown as string);
       }
     } catch (error) {
       logger.error('Error during manual sync:', error);

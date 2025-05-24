@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { body, param } from 'express-validator';
+const expressValidator = require('express-validator');
+const { body, param } = expressValidator;
 import { EscrowService } from '../services/escrow.service';
 import {
   CreateEscrowRequest,

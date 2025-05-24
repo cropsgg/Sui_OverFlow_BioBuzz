@@ -1,5 +1,5 @@
 import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
-import { TransactionBlock } from '@mysten/sui/transactions';
+import { Transaction } from '@mysten/sui/transactions';
 import { normalizeSuiAddress, isValidSuiAddress } from '@mysten/sui/utils';
 import {
   SuiServiceConfig,
@@ -235,8 +235,8 @@ export class SuiService {
   // TRANSACTION BUILDING METHODS
   // ================================
 
-  public buildAddMemberTransaction(memberAddress: string, memberName: string): TransactionBlock {
-    const tx = new TransactionBlock();
+  public buildAddMemberTransaction(memberAddress: string, memberName: string): Transaction {
+    const tx = new Transaction();
     
     tx.moveCall({
       target: `${this.config.packageId}::labshare_dao::add_member`,
@@ -256,8 +256,8 @@ export class SuiService {
     dataHash: string,
     metadata: string,
     value: number
-  ): TransactionBlock {
-    const tx = new TransactionBlock();
+  ): Transaction {
+    const tx = new Transaction();
     
     tx.moveCall({
       target: `${this.config.packageId}::labshare_dao::submit_data`,
@@ -278,8 +278,8 @@ export class SuiService {
     proposalType: number,
     title: string,
     description: string
-  ): TransactionBlock {
-    const tx = new TransactionBlock();
+  ): Transaction {
+    const tx = new Transaction();
     
     tx.moveCall({
       target: `${this.config.packageId}::labshare_dao::create_proposal`,
@@ -298,8 +298,8 @@ export class SuiService {
     senderAddress: string,
     proposalId: string,
     vote: boolean
-  ): TransactionBlock {
-    const tx = new TransactionBlock();
+  ): Transaction {
+    const tx = new Transaction();
     
     tx.moveCall({
       target: `${this.config.packageId}::labshare_dao::vote`,
@@ -316,8 +316,8 @@ export class SuiService {
   public buildExecuteProposalTransaction(
     senderAddress: string,
     proposalId: string
-  ): TransactionBlock {
-    const tx = new TransactionBlock();
+  ): Transaction {
+    const tx = new Transaction();
     
     tx.moveCall({
       target: `${this.config.packageId}::labshare_dao::execute_proposal`,
@@ -336,8 +336,8 @@ export class SuiService {
     minValue: number,
     maxValue: number,
     description: string
-  ): TransactionBlock {
-    const tx = new TransactionBlock();
+  ): Transaction {
+    const tx = new Transaction();
     
     tx.moveCall({
       target: `${this.config.packageId}::labshare_dao::update_threshold`,
@@ -356,8 +356,8 @@ export class SuiService {
   public buildAddFundsTransaction(
     senderAddress: string,
     amount: number
-  ): TransactionBlock {
-    const tx = new TransactionBlock();
+  ): Transaction {
+    const tx = new Transaction();
     
     // Convert SUI to MIST (1 SUI = 1_000_000_000 MIST)
     const amountInMist = Math.floor(amount * 1_000_000_000);
@@ -379,8 +379,8 @@ export class SuiService {
   // HELPER TRANSACTION BUILDERS
   // ================================
 
-  private buildIsMemberTransaction(memberAddress: string): TransactionBlock {
-    const tx = new TransactionBlock();
+  private buildIsMemberTransaction(memberAddress: string): Transaction {
+    const tx = new Transaction();
     
     tx.moveCall({
       target: `${this.config.packageId}::labshare_dao::is_member`,
@@ -393,8 +393,8 @@ export class SuiService {
     return tx;
   }
 
-  private buildGetMemberTransaction(memberAddress: string): TransactionBlock {
-    const tx = new TransactionBlock();
+  private buildGetMemberTransaction(memberAddress: string): Transaction {
+    const tx = new Transaction();
     
     tx.moveCall({
       target: `${this.config.packageId}::labshare_dao::get_member`,
@@ -445,16 +445,15 @@ export class SuiService {
     limit?: number
   ) {
     try {
-      const filter = eventType
+      const filter: any = eventType
         ? {
             Package: this.config.packageId,
-            EventType: `${this.config.packageId}::labshare_dao::${eventType}`,
           }
         : { Package: this.config.packageId };
 
       const response = await this.client.queryEvents({
         query: filter,
-        cursor: fromCheckpoint,
+        cursor: fromCheckpoint as any,
         limit: limit || 100,
         order: 'descending',
       });
@@ -583,7 +582,7 @@ export class SuiService {
   // TRANSACTION EXECUTION HELPERS
   // ================================
 
-  public async estimateGasCost(tx: TransactionBlock, sender: string): Promise<{ totalGas: string; gasPrice: string }> {
+  public async estimateGasCost(tx: Transaction, sender: string): Promise<{ totalGas: string; gasPrice: string }> {
     try {
       const response = await this.client.dryRunTransactionBlock({
         transactionBlock: await tx.build({ client: this.client }),
@@ -599,7 +598,7 @@ export class SuiService {
     }
   }
 
-  public async simulateTransaction(tx: TransactionBlock): Promise<any> {
+  public async simulateTransaction(tx: Transaction): Promise<any> {
     try {
       const response = await this.client.dryRunTransactionBlock({
         transactionBlock: await tx.build({ client: this.client }),
@@ -616,7 +615,7 @@ export class SuiService {
   // VALIDATION METHODS
   // ================================
 
-  public validateTransaction(tx: TransactionBlock): boolean {
+  public validateTransaction(tx: Transaction): boolean {
     try {
       // Basic validation - check if transaction has move calls
       return true; // Placeholder - implement specific validation logic

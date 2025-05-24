@@ -1,4 +1,4 @@
-import * as expressValidator from 'express-validator';
+const expressValidator = require('express-validator');
 const { body } = expressValidator;
 
 // Register validation
