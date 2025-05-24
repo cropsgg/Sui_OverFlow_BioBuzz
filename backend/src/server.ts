@@ -7,6 +7,7 @@ import { connectDB } from './config/database';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import daoRoutes from './routes/dao.routes';
+import escrowRoutes from './routes/escrow.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 // Load environment variables
@@ -32,6 +33,7 @@ app.use(morgan('dev'));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/dao', daoRoutes);
+app.use('/api/escrow', escrowRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {
@@ -55,6 +57,7 @@ app.get('/api', (req, res) => {
       auth: '/api/auth',
       users: '/api/users',
       dao: '/api/dao',
+      escrow: '/api/escrow',
       health: '/health'
     },
     dao: {
@@ -105,6 +108,7 @@ const startServer = async () => {
       console.log(`🔌 API accessible at: http://localhost:${PORT}/api`);
       console.log(`🏥 Health check: http://localhost:${PORT}/health`);
       console.log(`🗳️  DAO API: http://localhost:${PORT}/api/dao`);
+      console.log(`💰 Escrow API: http://localhost:${PORT}/api/escrow`);
       console.log('====================================');
     });
   } catch (error) {

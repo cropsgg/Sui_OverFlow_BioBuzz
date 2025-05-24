@@ -495,12 +495,12 @@ export const DataManagement: React.FC<DataManagementProps> = ({ userAddress }) =
           />
         </div>
         <div className="flex gap-2">
-          <Select value={filters.sensorType?.toString() || ''} onValueChange={(value) => setFilters(prev => ({ ...prev, sensorType: value ? parseInt(value) : undefined }))}>
+          <Select value={filters.sensorType?.toString() || 'all'} onValueChange={(value) => setFilters(prev => ({ ...prev, sensorType: value === 'all' ? undefined : parseInt(value) }))}>
             <SelectTrigger className="w-36">
               <SelectValue placeholder="Sensor Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Sensors</SelectItem>
+              <SelectItem value="all">All Sensors</SelectItem>
               {data.sensorTypes.map((sensor) => (
                 <SelectItem key={sensor.sensorTypeId} value={sensor.sensorTypeId.toString()}>
                   {sensor.name}
@@ -509,12 +509,12 @@ export const DataManagement: React.FC<DataManagementProps> = ({ userAddress }) =
             </SelectContent>
           </Select>
           
-          <Select value={filters.triggeredAlert?.toString() || ''} onValueChange={(value) => setFilters(prev => ({ ...prev, triggeredAlert: value ? value === 'true' : undefined }))}>
+          <Select value={filters.triggeredAlert?.toString() || 'all'} onValueChange={(value) => setFilters(prev => ({ ...prev, triggeredAlert: value === 'all' ? undefined : value === 'true' }))}>
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Alerts" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All</SelectItem>
+              <SelectItem value="all">All</SelectItem>
               <SelectItem value="true">Alerts Only</SelectItem>
               <SelectItem value="false">Normal Only</SelectItem>
             </SelectContent>
