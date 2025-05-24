@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { useSidebar } from "@/components/sidebar-provider"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,11 +30,13 @@ import {
   Activity,
   Vote,
   Zap,
-  FlaskConical
+  FlaskConical,
+  Menu
 } from "lucide-react"
 
 export function MainNav() {
   const pathname = usePathname()
+  const { toggle } = useSidebar()
 
   const navItems = [
     {
@@ -210,7 +213,13 @@ export function MainNav() {
   }
 
   return (
-    <div className="flex items-center gap-6">
+    <div className="flex items-center w-full">
+      {/* Mobile Menu Toggle */}
+      <Button variant="ghost" size="icon" className="md:hidden mr-2" onClick={toggle}>
+        <Menu className="h-5 w-5" />
+        <span className="sr-only">Toggle menu</span>
+      </Button>
+
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2">
         <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
@@ -220,7 +229,7 @@ export function MainNav() {
       </Link>
 
       {/* Navigation Items */}
-      <nav className="hidden md:flex items-center gap-1">
+      <nav className="hidden md:flex items-center gap-1 ml-6">
         {navItems.map(renderNavItem)}
       </nav>
 
@@ -230,8 +239,6 @@ export function MainNav() {
           <Activity className="h-3 w-3" />
           <span className="text-xs">Testnet</span>
         </Badge>
-        
-        {/* Live indicator */}
         <div className="flex items-center gap-1.5">
           <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
           <span className="text-xs text-muted-foreground">Live</span>
