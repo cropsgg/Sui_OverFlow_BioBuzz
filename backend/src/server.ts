@@ -17,6 +17,7 @@ dotenv.config();
 // Initialize express app
 const app = express();
 const PORT = process.env.PORT || 5000;
+
 // Create HTTP server
 const server = http.createServer(app);
 
@@ -29,7 +30,7 @@ const io = new Server(server, {
   }
 });
 
-// Store messages for each room
+// ====== Chatroom Data Structures ======
 const roomMessages: Record<string, any[]> = {
   general: [],
   quantum: [],
@@ -38,7 +39,6 @@ const roomMessages: Record<string, any[]> = {
   stanford: []
 };
 
-// Store active users in each room
 const roomUsers: Record<string, Set<string>> = {
   general: new Set(),
   quantum: new Set(),
@@ -47,17 +47,8 @@ const roomUsers: Record<string, Set<string>> = {
   stanford: new Set()
 };
 
-// Initialize with some sample messages
+// ====== Initialize Sample Chat Messages ======
 const initializeRooms = () => {
-  const sampleUsers = ["Dr. Chen", "Dr. Williams", "Dr. Smith", "Dr. Johnson"];
-  const sampleAvatars = [
-    "/abstract-avatar.png",
-    "/abstract-avatar-2.png",
-    "/abstract-avatar-3.png",
-    "/abstract-avatar-4.png"
-  ];
-
-  // Sample messages for general room
   roomMessages.general = [
     {
       id: "1",
@@ -85,7 +76,6 @@ const initializeRooms = () => {
     }
   ];
 
-  // Sample messages for other rooms
   roomMessages.quantum = [
     {
       id: "4",
@@ -109,78 +99,46 @@ const initializeRooms = () => {
   ];
 };
 
-// Initialize rooms with sample messages
 initializeRooms();
 
-// Socket.io connection handling
+// ====== Socket.io Chatroom Logic ======
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  // Join a room
   socket.on('joinRoom', ({ username, roomId }) => {
-    // Join the socket.io room
     socket.join(roomId);
-
-    // Add user to room users
-    if (roomUsers[roomId]) {
-      roomUsers[roomId].add(username);
-    }
-
+    if (roomUsers[roomId]) roomUsers[roomId].add(username);
     console.log(`${username} joined room: ${roomId}`);
-
-    // Notify others in the room
     socket.to(roomId).emit('userJoined', { username, roomId });
   });
 
-  // Leave a room
   socket.on('leaveRoom', ({ username, roomId }) => {
-    // Leave the socket.io room
     socket.leave(roomId);
-
-    // Remove user from room users
-    if (roomUsers[roomId]) {
-      roomUsers[roomId].delete(username);
-    }
-
+    if (roomUsers[roomId]) roomUsers[roomId].delete(username);
     console.log(`${username} left room: ${roomId}`);
-
-    // Notify others in the room
     socket.to(roomId).emit('userLeft', { username, roomId });
   });
 
-  // Get room history
   socket.on('getRoomHistory', ({ roomId }) => {
-    // Send room message history to the client
     socket.emit('roomHistory', { messages: roomMessages[roomId] || [] });
   });
 
-  // Send a message
   socket.on('sendMessage', (message) => {
     const { roomId } = message;
-
-    // Add message to room history
     if (roomMessages[roomId]) {
       roomMessages[roomId].push(message);
-
-      // Keep only the last 100 messages
-      if (roomMessages[roomId].length > 100) {
-        roomMessages[roomId] = roomMessages[roomId].slice(-100);
-      }
+      if (roomMessages[roomId].length > 100) roomMessages[roomId] = roomMessages[roomId].slice(-100);
     }
-
-    // Broadcast message to everyone in the room (including sender)
     io.to(roomId).emit('message', message);
-
     console.log(`Message sent in ${roomId} by ${message.username}: ${message.message}`);
   });
 
-  // Disconnect
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });
 });
 
-// Middleware
+// ====== Express Middleware ======
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:3000',
   credentials: true,
@@ -192,12 +150,12 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 app.use(morgan('dev'));
 
-// Routes
+// ====== API Routes ======
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/dao', daoRoutes);
 
-// Health check route
+// ====== Health Check & API Info ======
 app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'ok', 
@@ -210,7 +168,6 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API info route
 app.get('/api', (req, res) => {
   res.json({
     message: 'LabShareDAO API',
@@ -228,25 +185,23 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Error handling middleware
+// ====== Error Handling ======
 app.use(errorHandler);
 
-// Start server and connect to database
+// ====== Server Start ======
 const startServer = async () => {
   try {
     console.log('====================================');
     console.log('🚀 Starting LabShareDAO Backend Server');
     console.log('====================================');
 
-    // Check environment variables
     const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
     const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
-    
+
     if (missingEnvVars.length > 0) {
       console.warn('⚠️  Missing environment variables:', missingEnvVars.join(', '));
     }
 
-    // Check DAO configuration
     if (!process.env.SUI_PACKAGE_ID || !process.env.DAO_OBJECT_ID) {
       console.warn('⚠️  DAO not configured. Set SUI_PACKAGE_ID and DAO_OBJECT_ID to enable DAO features.');
     } else {
@@ -255,14 +210,12 @@ const startServer = async () => {
       console.log(`   DAO Object ID: ${process.env.DAO_OBJECT_ID}`);
       console.log(`   Network: ${process.env.SUI_NETWORK || 'devnet'}`);
     }
-    
-    // Connect to MongoDB
+
     console.log('📦 Connecting to MongoDB...');
     await connectDB();
     console.log('✅ MongoDB connected successfully');
-    
-    // Start Express server
-    app.listen(PORT, () => {
+
+    server.listen(PORT, () => {
       console.log('====================================');
       console.log(`🌐 Server running on port ${PORT}`);
       console.log(`📱 Frontend URL: ${process.env.CLIENT_URL || 'http://localhost:3000'}`);
@@ -280,10 +233,9 @@ const startServer = async () => {
   }
 };
 
-// Call the start server function
 startServer();
 
-// Handle unhandled promise rejections
+// ====== Global Error Handlers ======
 process.on('unhandledRejection', (err: Error) => {
   console.error('====================================');
   console.error('❌ UNHANDLED REJECTION! 💥 Shutting down...');
@@ -292,11 +244,10 @@ process.on('unhandledRejection', (err: Error) => {
   process.exit(1);
 });
 
-// Handle uncaught exceptions
 process.on('uncaughtException', (err: Error) => {
   console.error('====================================');
   console.error('❌ UNCAUGHT EXCEPTION! 💥 Shutting down...');
   console.error(err.name, err.message);
   console.error('====================================');
   process.exit(1);
-}); 
+});
